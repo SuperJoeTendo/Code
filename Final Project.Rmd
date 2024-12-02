@@ -1,0 +1,180 @@
+---
+title: "Final Project"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1.
+In this analysis, we have chosen Adult dataset from [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Adult). The dataset contains 32,560 observations and 15 variables. Six variables are numerical and the other 9 variables are categorical. The variable age is numerical and represents the age of the adult individual. The variable workclass is continuous representing the working class of the individual. The variable fnlwgt is numerical and does not have any representation. The variable education represents the education of adult and it is categorical. The variable education_num is numerical and represents the numerical value of the education. The variable marital_status represents the marital status of the adult and it is categorical. The variable occupation is categorical and represents the occupation of the adult. The variable relationship is categorical and represents the current relationship of the adult. The variable race is categorical and represents the race of the adult. The variable sex is categorical representing the sex of the adult. The variable capital_gain is numerical and represents the capital gain. The variable hours_per_week is numerical and represents total working hours for an adult per week. The native_country is categorical, representing the native country of the adult. The variable income is continuous representing the whether the total income of an adult is greater or less than 50K.
+
+
+## 2.
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+
+adult_data <- read.table("adult.data", header = TRUE, sep = ",")
+
+
+
+
+# renaming the variable names
+var_names <- c('age', 'workclass', 'fnlwgt', 'education', 'education_num', 
+               'marital_status', 'occupation', 'relationship',
+               'race', 'sex', 'capital_gain', 'capital_loss', 'hours_per_week',
+               'native_country', 'income')
+
+length(var_names)
+
+colnames(adult_data) <- var_names
+
+glimpse(adult_data)
+
+# total missing values in each variable
+colSums(is.na(adult_data))
+```
+
+There are no missing values in the data.
+
+
+## 3.
+
+**Research Question 1:** Is there a relationship between age of the adults and their yearly income?
+
+**Research Question 2:** What is the relationship between education number and race of the adults?
+
+## 4.
+
+First we have visualized the frequency distribution of Yearly income variable. The plot shows that the adults who earn less than 50K are more than double as compare to adults who earn greater than 50K.
+
+```{r}
+barplot(table(adult_data$income), col = c('lightblue', 'lightyellow'), 
+        main = 'Frequency Distribution of Yearly Income')
+```
+
+Next we have visualized a boxplot to observe the association between Age and income variable. This boxplot shows that older people earn greater than 50K and younger people earn less than 50K.  There are outliers present in the boxplot. The variability in less than 50K group is higher than other group. 
+
+```{r}
+boxplot(age ~ income, data = adult_data, col = c('lightblue', 'lightyellow'), 
+        main = 'Distribution of Age by Income')
+```
+
+The distribution of Age is visualized by making histogram. The histogram shows that the distribution is slightly right skewed but it can be approximated as normal.
+
+```{r}
+hist(adult_data$age, main = 'Distribution of Age', col = 'lightblue')
+```
+
+The distribution of the Race variable is visualized by a bar graph. The barplot shows that the majority of the adult's race is white (85%). 
+
+```{r}
+table(adult_data$race) /nrow(adult_data) * 100
+
+barplot(table(adult_data$race), main = 'Frequency distribution of Race', 
+        col = c('lightblue', 'grey', 'lightyellow', 'green', 'black'))
+```
+
+
+The distribution of Education number is visualized by Race. The plot shows that indians Black people have lower education while Asian and White adult races have higher education number.
+
+```{r}
+boxplot(education_num ~ race, data = adult_data, 
+        col = c('lightblue', 'grey', 'lightyellow', 'green', 'black'),
+        main = 'Distribution of Education number by Race')
+```
+
+
+
+## 5.
+
+First we have visualized the frequency distribution of the income. The barplot shows that  that the adults who earn less than 50K are more than double as compare to adults who earn greater than 50K. Next we have visualized the age of the adults by income group using boxplot. The boxplot shows that there is an association between Age and income variable. This boxplot shows that older people earn greater than 50K and younger people earn less than 50K.  There are outliers present in the boxplot. The variability in less than 50K group is higher than other group. Finally we visualized the distribution of Age using histogram. The histogram shows that the distribution is slightly right skewed but it can be approximated as normal. Overall based on this EDA we can conclude that income and age are associated. Older people earn more money than younger people.
+
+Related to second question, we have first visualized the frequency distribution of race. The barplot shows that the majority of the adult's race is white (85%). The distribution of Education number is visualized by Race. The plot shows that indians Black people have lower education while Asian and White adult races have higher education number. Based on this EDA, we can conclude that race and education number are associated. The The Asian and White races have higher education number than other races.
+
+## 6.
+
+**Research Question:** Is there a difference in the mean weekly work hours for male and female sex?
+
+**Visualization:** We will visualize the distribution of weekly hours by sex group using boxplot. The boxplot shows that the female sex have lower work hours per week than male sex group.  The distribution of work hours for female group is extremely left skewed and the distribution of work hours per week for male group is extremely right skewed. Moreover the data contains outliers.
+
+```{r}
+boxplot(hours_per_week ~ sex, data = adult_data, col = c('lightblue', 'lightyellow'),
+        main = 'Distribution of Hours per Week by Sex')
+```
+
+
+
+**T-test Assumptions:** The data in each group should be normally distributed. The variances of the two groups should be equal. The observations in each group should be independent of each other.
+
+
+**Null Hypothesis:** There is no difference in the mean hours per week for male and female adults.
+
+**Alternative Hypothesis:** There is difference in the mean hours per week for male and female adults.
+
+In hour data, the normality of the data for each group is violated. There are some extreme outliers in both groups data.I will assume that data has been calculated independently. The variance in both groups looks constant.
+
+```{r}
+t.test(hours_per_week ~ sex, data = adult_data, conf.level = 0.95)
+```
+
+p-value of the test is 0. The 95% confidence inerval is given below.
+
+```{r}
+t.test(hours_per_week ~ sex, data = adult_data, conf.level = 0.95)$conf
+```
+
+**Conclusion:** The result of this t-test is significant since p-value is 0. That means we reject the null hypothesis and conclude that there is a difference in the mean hours per week for males and females sex. The males have higher hours per week than females. The 95% confidence interval of mean difference of hours per week for males and females sex is [-6.29, -5.74]
+
+
+## 7.
+
+**Research Question:** Is there an association between Age of the adults and hours per week?
+
+**Null Hypothesis:** There is no association between Age and hours per week, $\beta1 = 0$
+
+**Alternative Hypothesis:** There is an association between Age hours per week,
+$\beta1 \not= 0$
+
+**Scatter plot**
+
+```{r}
+plot(adult_data$age, adult_data$hours_per_week, xlab = 'Age', ylab = 'Hours per Week',
+     main = 'Scatter plot of Age and Hours per Week')
+abline(lm(hours_per_week ~ age, data = adult_data), col = 'red')
+```
+
+
+**Regression**
+
+```{r}
+model <- lm(hours_per_week ~ age, data = adult_data)
+summary(model)
+```
+
+
+The coefficients of the regression model are:
+
+```{r}
+model$coefficients
+```
+
+The regression equation is written below:
+hours_per_week = 38.03 + 0.062*age
+
+The p-value of the age coefficient is zero which is significant. The overall p-value of the this model is also zero which means that our model is significant.
+
+
+The adjusted r-squared of this model is 0.0046, which means that 0.46% percent variance of the hours per week is explained by this model which is very low. The coefficient of the age is 0.062 which means that with each year increase in the age, the hours per week increases by 0.062 hours. That indicates that age is positively associated with the hours per week. With the increase in age, the hours per week increases as well.
+
+
+## 8.
+
+The Adult dataset has been used in many studies to model income, occupation, and other factors related to employment and demographic data. However, there are some ethical concerns associated with the collection, use, and dissemination of this data. One issue is the potential for discrimination and bias against certain groups based on their race, ethnicity, gender, age, or other characteristics. For example, if an employer were to use this dataset to screen job candidates, they may inadvertently discriminate against certain groups based on the historical patterns in the data, rather than evaluating each candidate on their individual merits. Similarly, if researchers use this data to make generalizations about different demographic groups, they may perpetuate harmful stereotypes or overlook important individual differences.
+
+Another ethical concern related to the Adult dataset is the potential for privacy violations. The dataset contains sensitive information about individuals, including their age, race, income, and occupation. Moreover, the Adult dataset was collected in the 1990s, and the privacy standards and regulations at that time were less stringent than they are today. As a result, there may be concerns about whether the individuals in the dataset provided informed consent or had adequate protections for their personal information. 
+
+
+
